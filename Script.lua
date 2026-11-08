@@ -1,4 +1,4 @@
--- Carrega a biblioteca do Rayfield
+-- [[ 🎃🕸️ Rabbit Menu / Halloween Hub - Pro Edition ]]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Variáveis de Controlo
@@ -39,45 +39,46 @@ FOVDrawing.Filled = false
 local ESPBoxes = {}
 local ESPSkeletons = {}
 
--- Cria a Janela Principal com Temática Halloween 🎃🕸️
+-- Cria a Janela Principal com o Layout e Estilo do Rabbit Menu
 local Window = Rayfield:CreateWindow({
-   Name = "🎃🕸️ Halloween Hub - Pro Edition",
-   LoadingTitle = "A carregar módulos...",
+   Name = "🐰 Rabbit Menu 🎃🕸️ - Pro Edition",
+   LoadingTitle = "A carregar Rabbit Menu...",
    LoadingSubtitle = "por Chiquinook9",
-   ConfigurationSaving = { Enabled = false, FolderName = "HalloweenHub", FileName = "Config" },
+   ConfigurationSaving = { Enabled = false, FolderName = "RabbitMenuConfig", FileName = "Config" },
    Discord = { Enabled = false, Invite = "noinvite", RememberJoins = true },
    KeySystem = true,
    KeySettings = {
-      Title = "Painel Protegido 🎃",
+      Title = "Painel Protegido 🐰",
       Subtitle = "Insira a chave de acesso",
       Note = "Chave padrão: KEY001",
-      FileName = "HalloweenKey",
+      FileName = "RabbitKey",
       SaveKey = true,
       Key = {"KEY001"}
    }
 })
 
--- ==================== ABAS DO PAINEL ====================
-local MovementTab = Window:CreateTab("⚡ Movimento", 4483362458)
-local ESPTab = Window:CreateTab("👁️ ESP & Visual", 4483362458)
-local CombatTab = Window:CreateTab("🎯 Combate & Hitbox", 4483362458)
+-- ==================== ABAS DO PAINEL (Estilo Rabbit Menu) ====================
+local PlayerTab = Window:CreateTab("👤 Jogador", 4483362458)
+local VisualTab = Window:CreateTab("👁️ Visuais & ESP", 4483362458)
+local ExploitsTab = Window:CreateTab("⚡ Exploits & Combate", 4483362458)
+local ConfigTab = Window:CreateTab("⚙️ Configurações", 4483362458)
 
--- ==================== ABA 1: MOVIMENTO ====================
-MovementTab:CreateToggle({
+-- ==================== ABA 1: JOGADOR (Movimento & Anti-Moeda) ====================
+PlayerTab:CreateToggle({
    Name = "Noclip (Atravessar lados sem cair no void)",
    CurrentValue = false,
    Flag = "ToggleNoclip",
    Callback = function(Value) NoclipEnabled = Value end,
 })
 
-MovementTab:CreateToggle({
+PlayerTab:CreateToggle({
    Name = "Anti-Moeda (Não apanhar moedas)",
    CurrentValue = false,
    Flag = "ToggleAntiCoin",
    Callback = function(Value) AntiCoinEnabled = Value end,
 })
 
-MovementTab:CreateSlider({
+PlayerTab:CreateSlider({
    Name = "Velocidade (WalkSpeed)",
    Range = {16, 500},
    Increment = 5,
@@ -92,8 +93,8 @@ MovementTab:CreateSlider({
    end,
 })
 
--- ==================== ABA 2: ESP (VISUAL COM LIMITE DE DISTÂNCIA) ====================
-ESPTab:CreateToggle({
+-- ==================== ABA 2: VISUAIS & ESP ====================
+VisualTab:CreateToggle({
    Name = "ESP Box (Caixas)",
    CurrentValue = true,
    Flag = "ToggleESPBox",
@@ -105,7 +106,7 @@ ESPTab:CreateToggle({
    end,
 })
 
-ESPTab:CreateToggle({
+VisualTab:CreateToggle({
    Name = "ESP Esqueleto (Skeleton)",
    CurrentValue = true,
    Flag = "ToggleESPSkeleton",
@@ -119,7 +120,7 @@ ESPTab:CreateToggle({
    end,
 })
 
-ESPTab:CreateSlider({
+VisualTab:CreateSlider({
    Name = "Limite de Distância do ESP",
    Range = {100, 5000},
    Increment = 100,
@@ -129,22 +130,7 @@ ESPTab:CreateSlider({
    Callback = function(Value) MaxDistance = Value end,
 })
 
--- ==================== ABA 3: COMBATE (AIMBOT & HITBOX) ====================
-CombatTab:CreateToggle({
-   Name = "Aimbot (Mover câmara)",
-   CurrentValue = false,
-   Flag = "ToggleAimbot",
-   Callback = function(Value) AimbotEnabled = Value end,
-})
-
-CombatTab:CreateToggle({
-   Name = "Aimbot apenas Botão Direito",
-   CurrentValue = true,
-   Flag = "ToggleAimOnClick",
-   Callback = function(Value) AimOnClick = Value end,
-})
-
-CombatTab:CreateToggle({
+VisualTab:CreateToggle({
    Name = "Cercle FOV visible",
    CurrentValue = true,
    Flag = "ToggleFovVisible",
@@ -154,7 +140,7 @@ CombatTab:CreateToggle({
    end,
 })
 
-CombatTab:CreateSlider({
+VisualTab:CreateSlider({
    Name = "FOV (Tamanho)",
    Range = {50, 300},
    Increment = 5,
@@ -164,7 +150,22 @@ CombatTab:CreateSlider({
    Callback = function(Value) FovSize = Value end,
 })
 
-CombatTab:CreateSlider({
+-- ==================== ABA 3: EXPLOITS & COMBATE ====================
+ExploitsTab:CreateToggle({
+   Name = "Aimbot (Mover câmara)",
+   CurrentValue = false,
+   Flag = "ToggleAimbot",
+   Callback = function(Value) AimbotEnabled = Value end,
+})
+
+ExploitsTab:CreateToggle({
+   Name = "Aimbot apenas Botão Direito",
+   CurrentValue = true,
+   Flag = "ToggleAimOnClick",
+   Callback = function(Value) AimOnClick = Value end,
+})
+
+ExploitsTab:CreateSlider({
    Name = "Fluidité (Suavização)",
    Range = {1, 20},
    Increment = 1,
@@ -174,7 +175,7 @@ CombatTab:CreateSlider({
    Callback = function(Value) Smoothness = Value end,
 })
 
-CombatTab:CreateDropdown({
+ExploitsTab:CreateDropdown({
    Name = "Parte visada (Alvo)",
    Options = {"Head", "UpperTorso", "Torso"},
    CurrentOption = "Head",
@@ -182,16 +183,16 @@ CombatTab:CreateDropdown({
    Callback = function(Option) TargetPartName = Option[1] end,
 })
 
-CombatTab:CreateSection("🔧 Hitbox Extender (Longo Alcance)")
+ExploitsTab:CreateSection("🔧 Hitbox Extender (Longo Alcance)")
 
-CombatTab:CreateToggle({
+ExploitsTab:CreateToggle({
    Name = "Ativar Hitbox Expandida",
    CurrentValue = false,
    Flag = "ToggleHitbox",
    Callback = function(Value) HitboxEnabled = Value end,
 })
 
-CombatTab:CreateSlider({
+ExploitsTab:CreateSlider({
    Name = "Tamanho da Hitbox",
    Range = {2, 25},
    Increment = 1,
@@ -200,6 +201,10 @@ CombatTab:CreateSlider({
    Flag = "SliderHitboxSize",
    Callback = function(Value) HitboxSize = Value end,
 })
+
+-- ==================== ABA 4: CONFIGURAÇÕES ====================
+ConfigTab:CreateLabel("🐰 Rabbit Menu v2.0 - Desenvolvido por Chiquinook9")
+ConfigTab:CreateLabel("Tema: Halloween 🎃🕸️")
 
 -- Função para encontrar o alvo no FOV
 local function GetClosestPlayerInFOV()
@@ -227,10 +232,9 @@ local function GetClosestPlayerInFOV()
    return closestTarget
 end
 
--- Noclip otimizado: atravessa lados/frente sem cair no void
+-- Noclip otimizado e Anti-Moeda
 Stepped:Connect(function()
    if LocalPlayer.Character then
-      local humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
       local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
       
       if NoclipEnabled then
@@ -240,13 +244,11 @@ Stepped:Connect(function()
             end
          end
          
-         -- Evita queda no void mantendo a plataforma estável se estiver a descer demasiado
          if rootPart and rootPart.Position.Y < -50 then
             rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 10, 0)
          end
       end
 
-      -- Lógica Anti-Moeda (ignora toques em itens de moeda/gold)
       if AntiCoinEnabled then
          for _, obj in ipairs(workspace:GetDescendants()) do
             if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("moeda") or obj.Name:lower():find("gold") or obj.Name:lower():find("cash")) then
@@ -259,14 +261,12 @@ end)
 
 -- Loop Principal de Processamento
 RunService.RenderStepped:Connect(function()
-   -- 1. Velocidade (WalkSpeed)
    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
       if LocalPlayer.Character.Humanoid.WalkSpeed ~= WalkSpeedValue then
          LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeedValue
       end
    end
 
-   -- 2. Hitbox Extender
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character then
          local rootPart = player.Character:FindFirstChild("HumanoidRootPart") or player.Character:FindFirstChild("Torso")
@@ -283,7 +283,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- 3. FOV e Aimbot
    local screenCenter = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
    FOVDrawing.Position = screenCenter
    FOVDrawing.Radius = FovSize
@@ -307,7 +306,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- 4. ESP com Limite de Distância
    if ESPBoxEnabled then
       for _, player in ipairs(Players:GetPlayers()) do
          if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
@@ -340,7 +338,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- ESP Esqueleto com Limite
    if ESPSkeletonEnabled then
       local function createLine()
          local line = Drawing.new("Line")
@@ -370,7 +367,7 @@ RunService.RenderStepped:Connect(function()
                
                if hOn and tOn then
                   skel.HeadToTorso.From = Vector2.new(headPos.X, headPos.Y)
-                  skel.HeadToTorso.To = Vector2.new(torsoPos.X, torsoPos.Y)
+                  skel.HeadToTorsa.To = Vector2.new(torsoPos.X, torsoPos.Y)
                   skel.HeadToTorso.Visible = true
                else
                   skel.HeadToTorso.Visible = false
@@ -388,8 +385,8 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Rayfield:Notify({
-   Title = "Halloween Hub Carregado! 🎃🕸️",
-   Content = "Noclip lateral ajustado sem queda no void.",
+   Title = "Rabbit Menu Carregado! 🐰🎃",
+   Content = "Todas as funções ativas com sucesso.",
    Duration = 5,
    Image = 4483362458,
 })

@@ -1,7 +1,6 @@
--- [[ 🎃🕸️ Rabbit Menu / FPS Hub - Persistent Edition ]]
+-- [[ 🎃🕸️ Rabbit Menu / FPS Master - Auto-Save & Reconnect Edition ]]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Sistema de persistência ao teleportar ou mudar de servidor (QueueOnTeleport)
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -10,6 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local CurrentCamera = workspace.CurrentCamera
 local Stepped = RunService.Stepped
 
+-- Garante que o painel se reexecuta sozinho ao mudar de servidor ou mapa
 if queue_on_teleport then
    queue_on_teleport([[
       loadstring(game:HttpGet("https://raw.githubusercontent.com/francisco12345678910santana-netizen/HS-Painel-/main/Script.lua"))()
@@ -46,15 +46,15 @@ FOVDrawing.Filled = false
 local ESPBoxes = {}
 local ESPSkeletons = {}
 
--- Cria a Janela Principal com Salvamento Automático de Configurações
+-- Cria a Janela Principal com Salvamento Automático e Persistente de Configurações
 local Window = Rayfield:CreateWindow({
-   Name = "🐰 Rabbit Menu - FPS Master 🎃",
-   LoadingTitle = "A carregar painel persistente...",
+   Name = "🐰 Rabbit Menu - Persistent Edition 🎃",
+   LoadingTitle = "A carregar painel e configurações...",
    LoadingSubtitle = "por Chiquinook9",
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = "RabbitMenuFPS",
-      FileName = "UserPreferences"
+      FolderName = "RabbitMenuConfigData",
+      FileName = "UserSavedSettings"
    },
    Discord = { Enabled = false, Invite = "noinvite", RememberJoins = true },
    KeySystem = true,
@@ -62,7 +62,7 @@ local Window = Rayfield:CreateWindow({
       Title = "Painel Protegido 🐰",
       Subtitle = "Insira a chave de acesso",
       Note = "Chave padrão: KEY001",
-      FileName = "RabbitKeyFPS",
+      FileName = "RabbitKeyPersistent",
       SaveKey = true,
       Key = {"KEY001"}
    }
@@ -207,8 +207,16 @@ CombatTab:CreateSlider({
 })
 
 -- ==================== ABA 4: CONFIGURAÇÕES ====================
-ConfigTab:CreateLabel("🐰 Rabbit Menu - Persistente & Automático")
+ConfigTab:CreateLabel("🐰 Rabbit Menu - Auto-Save Ativo")
 ConfigTab:CreateLabel("Criador: Chiquinook9")
+ConfigTab:CreateButton({
+   Name = "Guardar Configurações Manualmente",
+   Callback = function()
+      Rayfield:SaveConfiguration()
+      Rayfield:Notify({ Title = "Sucesso", Content = "As tuas funções foram guardadas!", Duration = 3 })
+   end,
+})
+
 ConfigTab:CreateButton({
    Name = "Recarregar Painel",
    Callback = function()
@@ -260,16 +268,14 @@ Stepped:Connect(function()
    end
 end)
 
--- Loop Principal (Hitbox FPS, Aimbot e ESP)
+-- Loop Principal (Hitbox, Aimbot e ESP)
 RunService.RenderStepped:Connect(function()
-   -- 1. Velocidade
    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
       if LocalPlayer.Character.Humanoid.WalkSpeed ~= WalkSpeedValue then
          LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeedValue
       end
    end
 
-   -- 2. Hitbox Extender para FPS (Alarga o tronco/cabeça dos inimigos para facilitar os acertos)
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character then
          local isEnemy = (player.Team ~= LocalPlayer.Team) or (not LocalPlayer.Team) or (#Players:GetTeams() == 0)
@@ -288,7 +294,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- 3. FOV e Aimbot
    local screenCenter = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
    FOVDrawing.Position = screenCenter
    FOVDrawing.Radius = FovSize
@@ -312,7 +317,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- 4. ESP Box
    if ESPBoxEnabled then
       for _, player in ipairs(Players:GetPlayers()) do
          if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
@@ -345,7 +349,6 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- ESP Esqueleto
    if ESPSkeletonEnabled then
       local function createLine()
          local line = Drawing.new("Line")
@@ -393,8 +396,8 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Rayfield:Notify({
-   Title = "Rabbit Menu Pronto! 🐰🔥",
-   Content = "Hitbox FPS, salvamento automático e persistência ativados.",
+   Title = "Rabbit Menu Ativo! 🐰🔥",
+   Content = "Salvamento automático e teleporte persistente ativados.",
    Duration = 5,
    Image = 4483362458,
 })

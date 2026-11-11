@@ -1,9 +1,23 @@
--- [[ 🎃🕸️ Rabbit Menu / Halloween Hub - Pro Edition ]]
+-- [[ 🎃🕸️ Rabbit Menu / FPS Hub - Persistent Edition ]]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Sistema de persistência ao teleportar ou mudar de servidor (QueueOnTeleport)
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local CurrentCamera = workspace.CurrentCamera
+local Stepped = RunService.Stepped
+
+if queue_on_teleport then
+   queue_on_teleport([[
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/francisco12345678910santana-netizen/HS-Painel-/main/Script.lua"))()
+   ]])
+end
 
 -- Variáveis de Controlo
 local NoclipEnabled = false
-local AntiCoinEnabled = false
 local WalkSpeedValue = 16
 local MaxDistance = 1000
 
@@ -13,25 +27,18 @@ local ESPSkeletonEnabled = true
 local AimbotEnabled = false
 local AimOnClick = true
 local FovVisible = true
-local FovSize = 140
+local FovSize = 300
 local Smoothness = 4
 local TargetPartName = "Head"
 
 local HitboxEnabled = false
-local HitboxSize = 5
-
-local CurrentCamera = workspace.CurrentCamera
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local Stepped = RunService.Stepped
+local HitboxSize = 4
 
 -- Círculo visual de FOV
 local FOVDrawing = Drawing.new("Circle")
 FOVDrawing.Visible = true
 FOVDrawing.Transparency = 0.7
-FOVDrawing.Color = Color3.fromRGB(255, 100, 100)
+FOVDrawing.Color = Color3.fromRGB(255, 0, 180)
 FOVDrawing.Thickness = 1.5
 FOVDrawing.NumSides = 60
 FOVDrawing.Filled = false
@@ -39,46 +46,43 @@ FOVDrawing.Filled = false
 local ESPBoxes = {}
 local ESPSkeletons = {}
 
--- Cria a Janela Principal com o Layout e Estilo do Rabbit Menu
+-- Cria a Janela Principal com Salvamento Automático de Configurações
 local Window = Rayfield:CreateWindow({
-   Name = "🐰 Rabbit Menu 🎃🕸️ - Pro Edition",
-   LoadingTitle = "A carregar Rabbit Menu...",
+   Name = "🐰 Rabbit Menu - FPS Master 🎃",
+   LoadingTitle = "A carregar painel persistente...",
    LoadingSubtitle = "por Chiquinook9",
-   ConfigurationSaving = { Enabled = false, FolderName = "RabbitMenuConfig", FileName = "Config" },
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "RabbitMenuFPS",
+      FileName = "UserPreferences"
+   },
    Discord = { Enabled = false, Invite = "noinvite", RememberJoins = true },
    KeySystem = true,
    KeySettings = {
       Title = "Painel Protegido 🐰",
       Subtitle = "Insira a chave de acesso",
       Note = "Chave padrão: KEY001",
-      FileName = "RabbitKey",
+      FileName = "RabbitKeyFPS",
       SaveKey = true,
       Key = {"KEY001"}
    }
 })
 
--- ==================== ABAS DO PAINEL (Estilo Rabbit Menu) ====================
-local PlayerTab = Window:CreateTab("👤 Jogador", 4483362458)
-local VisualTab = Window:CreateTab("👁️ Visuais & ESP", 4483362458)
-local ExploitsTab = Window:CreateTab("⚡ Exploits & Combate", 4483362458)
+-- ==================== ABAS DO PAINEL ====================
+local MovementTab = Window:CreateTab("⚡ Movimento", 4483362458)
+local ESPTab = Window:CreateTab("👁️ ESP & Visual", 4483362458)
+local CombatTab = Window:CreateTab("🎯 Combate & Hitbox", 4483362458)
 local ConfigTab = Window:CreateTab("⚙️ Configurações", 4483362458)
 
--- ==================== ABA 1: JOGADOR (Movimento & Anti-Moeda) ====================
-PlayerTab:CreateToggle({
-   Name = "Noclip (Atravessar lados sem cair no void)",
+-- ==================== ABA 1: MOVIMENTO ====================
+MovementTab:CreateToggle({
+   Name = "Noclip (Atravessar paredes sem cair)",
    CurrentValue = false,
    Flag = "ToggleNoclip",
    Callback = function(Value) NoclipEnabled = Value end,
 })
 
-PlayerTab:CreateToggle({
-   Name = "Anti-Moeda (Não apanhar moedas)",
-   CurrentValue = false,
-   Flag = "ToggleAntiCoin",
-   Callback = function(Value) AntiCoinEnabled = Value end,
-})
-
-PlayerTab:CreateSlider({
+MovementTab:CreateSlider({
    Name = "Velocidade (WalkSpeed)",
    Range = {16, 500},
    Increment = 5,
@@ -93,8 +97,8 @@ PlayerTab:CreateSlider({
    end,
 })
 
--- ==================== ABA 2: VISUAIS & ESP ====================
-VisualTab:CreateToggle({
+-- ==================== ABA 2: ESP (VISUAL) ====================
+ESPTab:CreateToggle({
    Name = "ESP Box (Caixas)",
    CurrentValue = true,
    Flag = "ToggleESPBox",
@@ -106,7 +110,7 @@ VisualTab:CreateToggle({
    end,
 })
 
-VisualTab:CreateToggle({
+ESPTab:CreateToggle({
    Name = "ESP Esqueleto (Skeleton)",
    CurrentValue = true,
    Flag = "ToggleESPSkeleton",
@@ -120,7 +124,7 @@ VisualTab:CreateToggle({
    end,
 })
 
-VisualTab:CreateSlider({
+ESPTab:CreateSlider({
    Name = "Limite de Distância do ESP",
    Range = {100, 5000},
    Increment = 100,
@@ -130,8 +134,23 @@ VisualTab:CreateSlider({
    Callback = function(Value) MaxDistance = Value end,
 })
 
-VisualTab:CreateToggle({
-   Name = "Cercle FOV visible",
+-- ==================== ABA 3: COMBATE (AIMBOT & HITBOX FPS) ====================
+CombatTab:CreateToggle({
+   Name = "Aimbot (Mover câmara)",
+   CurrentValue = false,
+   Flag = "ToggleAimbot",
+   Callback = function(Value) AimbotEnabled = Value end,
+})
+
+CombatTab:CreateToggle({
+   Name = "Aimbot apenas Botão Direito",
+   CurrentValue = true,
+   Flag = "ToggleAimOnClick",
+   Callback = function(Value) AimOnClick = Value end,
+})
+
+CombatTab:CreateToggle({
+   Name = "Círculo FOV visível",
    CurrentValue = true,
    Flag = "ToggleFovVisible",
    Callback = function(Value) 
@@ -140,33 +159,18 @@ VisualTab:CreateToggle({
    end,
 })
 
-VisualTab:CreateSlider({
-   Name = "FOV (Tamanho)",
-   Range = {50, 300},
-   Increment = 5,
+CombatTab:CreateSlider({
+   Name = "FOV (Tamanho da bolinha)",
+   Range = {50, 600},
+   Increment = 10,
    Suffix = "px",
-   CurrentValue = 140,
+   CurrentValue = 300,
    Flag = "SliderFOV",
    Callback = function(Value) FovSize = Value end,
 })
 
--- ==================== ABA 3: EXPLOITS & COMBATE ====================
-ExploitsTab:CreateToggle({
-   Name = "Aimbot (Mover câmara)",
-   CurrentValue = false,
-   Flag = "ToggleAimbot",
-   Callback = function(Value) AimbotEnabled = Value end,
-})
-
-ExploitsTab:CreateToggle({
-   Name = "Aimbot apenas Botão Direito",
-   CurrentValue = true,
-   Flag = "ToggleAimOnClick",
-   Callback = function(Value) AimOnClick = Value end,
-})
-
-ExploitsTab:CreateSlider({
-   Name = "Fluidité (Suavização)",
+CombatTab:CreateSlider({
+   Name = "Suavização (Smoothness)",
    Range = {1, 20},
    Increment = 1,
    Suffix = "",
@@ -175,38 +179,45 @@ ExploitsTab:CreateSlider({
    Callback = function(Value) Smoothness = Value end,
 })
 
-ExploitsTab:CreateDropdown({
-   Name = "Parte visada (Alvo)",
+CombatTab:CreateDropdown({
+   Name = "Parte Alvo",
    Options = {"Head", "UpperTorso", "Torso"},
    CurrentOption = "Head",
    Flag = "DropdownPart",
    Callback = function(Option) TargetPartName = Option[1] end,
 })
 
-ExploitsTab:CreateSection("🔧 Hitbox Extender (Longo Alcance)")
+CombatTab:CreateSection("🔧 Hitbox Extender (FPS Otimizada)")
 
-ExploitsTab:CreateToggle({
+CombatTab:CreateToggle({
    Name = "Ativar Hitbox Expandida",
    CurrentValue = false,
    Flag = "ToggleHitbox",
    Callback = function(Value) HitboxEnabled = Value end,
 })
 
-ExploitsTab:CreateSlider({
+CombatTab:CreateSlider({
    Name = "Tamanho da Hitbox",
-   Range = {2, 25},
+   Range = {2, 12},
    Increment = 1,
    Suffix = " size",
-   CurrentValue = 5,
+   CurrentValue = 4,
    Flag = "SliderHitboxSize",
    Callback = function(Value) HitboxSize = Value end,
 })
 
 -- ==================== ABA 4: CONFIGURAÇÕES ====================
-ConfigTab:CreateLabel("🐰 Rabbit Menu v2.0 - Desenvolvido por Chiquinook9")
-ConfigTab:CreateLabel("Tema: Halloween 🎃🕸️")
+ConfigTab:CreateLabel("🐰 Rabbit Menu - Persistente & Automático")
+ConfigTab:CreateLabel("Criador: Chiquinook9")
+ConfigTab:CreateButton({
+   Name = "Recarregar Painel",
+   Callback = function()
+      Rayfield:Destroy()
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/francisco12345678910santana-netizen/HS-Painel-/main/Script.lua"))()
+   end,
+})
 
--- Função para encontrar o alvo no FOV
+-- Função para encontrar o alvo mais próximo no FOV
 local function GetClosestPlayerInFOV()
    local closestTarget = nil
    local shortestDistance = FovSize
@@ -214,16 +225,18 @@ local function GetClosestPlayerInFOV()
 
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-         local character = player.Character
-         local targetPart = character:FindFirstChild(TargetPartName) or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Head")
-         
-         if targetPart then
-            local screenPoint, onScreen = CurrentCamera:WorldToViewportPoint(targetPart.Position)
-            if onScreen then
-               local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter).Magnitude
-               if distance < shortestDistance then
-                  shortestDistance = distance
-                  closestTarget = targetPart
+         if player.Team ~= LocalPlayer.Team or not LocalPlayer.Team then
+            local character = player.Character
+            local targetPart = character:FindFirstChild(TargetPartName) or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Head")
+            
+            if targetPart then
+               local screenPoint, onScreen = CurrentCamera:WorldToViewportPoint(targetPart.Position)
+               if onScreen then
+                  local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter).Magnitude
+                  if distance < shortestDistance then
+                     shortestDistance = distance
+                     closestTarget = targetPart
+                  end
                end
             end
          end
@@ -232,57 +245,50 @@ local function GetClosestPlayerInFOV()
    return closestTarget
 end
 
--- Noclip otimizado e Anti-Moeda
+-- Noclip otimizado
 Stepped:Connect(function()
-   if LocalPlayer.Character then
+   if LocalPlayer.Character and NoclipEnabled then
       local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-      
-      if NoclipEnabled then
-         for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") then
-               part.CanCollide = false
-            end
-         end
-         
-         if rootPart and rootPart.Position.Y < -50 then
-            rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 10, 0)
+      for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+         if part:IsA("BasePart") then
+            part.CanCollide = false
          end
       end
-
-      if AntiCoinEnabled then
-         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("BasePart") and (obj.Name:lower():find("coin") or obj.Name:lower():find("moeda") or obj.Name:lower():find("gold") or obj.Name:lower():find("cash")) then
-               obj.CanTouch = false
-            end
-         end
+      if rootPart and rootPart.Position.Y < -50 then
+         rootPart.CFrame = rootPart.CFrame + Vector3.new(0, 10, 0)
       end
    end
 end)
 
--- Loop Principal de Processamento
+-- Loop Principal (Hitbox FPS, Aimbot e ESP)
 RunService.RenderStepped:Connect(function()
+   -- 1. Velocidade
    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
       if LocalPlayer.Character.Humanoid.WalkSpeed ~= WalkSpeedValue then
          LocalPlayer.Character.Humanoid.WalkSpeed = WalkSpeedValue
       end
    end
 
+   -- 2. Hitbox Extender para FPS (Alarga o tronco/cabeça dos inimigos para facilitar os acertos)
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character then
-         local rootPart = player.Character:FindFirstChild("HumanoidRootPart") or player.Character:FindFirstChild("Torso")
-         if rootPart then
-            if HitboxEnabled then
-               rootPart.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
-               rootPart.Transparency = 0.7
-               rootPart.CanCollide = false
+         local isEnemy = (player.Team ~= LocalPlayer.Team) or (not LocalPlayer.Team) or (#Players:GetTeams() == 0)
+         local targetHitbox = player.Character:FindFirstChild("UpperTorso") or player.Character:FindFirstChild("HumanoidRootPart")
+         
+         if targetHitbox then
+            if HitboxEnabled and isEnemy then
+               targetHitbox.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+               targetHitbox.Transparency = 0.7
+               targetHitbox.CanCollide = false
             else
-               rootPart.Size = Vector3.new(2, 2, 1)
-               rootPart.Transparency = 1
+               targetHitbox.Size = Vector3.new(2, 1, 1)
+               targetHitbox.Transparency = 1
             end
          end
       end
    end
 
+   -- 3. FOV e Aimbot
    local screenCenter = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
    FOVDrawing.Position = screenCenter
    FOVDrawing.Radius = FovSize
@@ -306,6 +312,7 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
+   -- 4. ESP Box
    if ESPBoxEnabled then
       for _, player in ipairs(Players:GetPlayers()) do
          if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
@@ -338,6 +345,7 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
+   -- ESP Esqueleto
    if ESPSkeletonEnabled then
       local function createLine()
          local line = Drawing.new("Line")
@@ -367,7 +375,7 @@ RunService.RenderStepped:Connect(function()
                
                if hOn and tOn then
                   skel.HeadToTorso.From = Vector2.new(headPos.X, headPos.Y)
-                  skel.HeadToTorsa.To = Vector2.new(torsoPos.X, torsoPos.Y)
+                  skel.HeadToTorso.To = Vector2.new(torsoPos.X, torsoPos.Y)
                   skel.HeadToTorso.Visible = true
                else
                   skel.HeadToTorso.Visible = false
@@ -385,8 +393,8 @@ RunService.RenderStepped:Connect(function()
 end)
 
 Rayfield:Notify({
-   Title = "Rabbit Menu Carregado! 🐰🎃",
-   Content = "Todas as funções ativas com sucesso.",
+   Title = "Rabbit Menu Pronto! 🐰🔥",
+   Content = "Hitbox FPS, salvamento automático e persistência ativados.",
    Duration = 5,
    Image = 4483362458,
 })

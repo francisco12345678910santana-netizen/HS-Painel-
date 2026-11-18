@@ -1,7 +1,6 @@
--- [[ 🐰🕸️ Rabbit Menu - Universal FPS Master Edition ]]
+-- [[ 🎃🔪 Rabbit Menu - Duelos Master Edition ]]
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
@@ -9,26 +8,15 @@ local UserInputService = game:GetService("UserInputService")
 local CurrentCamera = workspace.CurrentCamera
 local Stepped = RunService.Stepped
 
--- Reexecuta automaticamente o script ao mudar de servidor ou mapa em qualquer jogo
-if queue_on_teleport then
-   queue_on_teleport([[
-      loadstring(game:HttpGet("https://raw.githubusercontent.com/francisco12345678910santana-netizen/HS-Painel-/main/Script.lua"))()
-   ]])
-end
-
--- Variáveis de Controlo Universal
+-- Variáveis de Controlo
 local NoclipEnabled = false
 local WalkSpeedValue = 16
 
 local ESPBoxEnabled = true
-local ESPSkeletonEnabled = true
-
 local AimbotEnabled = false
-local AutoShootEnabled = false
 local FovVisible = true
 local FovSize = 300
 local Smoothness = 4
-local TargetPartName = "Head"
 
 local HitboxEnabled = false
 local HitboxSize = 4
@@ -43,17 +31,16 @@ FOVDrawing.NumSides = 60
 FOVDrawing.Filled = false
 
 local ESPBoxes = {}
-local ESPSkeletons = {}
 
--- Janela Principal com a Key "Dono01" protegida e Salvamento Automático
+-- Janela Principal com Salvamento de Configurações e Key "Dono01"
 local Window = Rayfield:CreateWindow({
-   Name = "🐰 Rabbit Menu - Universal FPS 🎃",
-   LoadingTitle = "A carregar painel universal...",
+   Name = "🐰 Rabbit Menu - Duelos Edition 🔪🎃",
+   LoadingTitle = "A carregar painel...",
    LoadingSubtitle = "por Chiquinook9",
    ConfigurationSaving = {
       Enabled = true,
-      FolderName = "RabbitMenuConfigData",
-      FileName = "UniversalSavedSettings"
+      FolderName = "RabbitMenuDuelos",
+      FileName = "DuelosSettings"
    },
    Discord = { Enabled = false, Invite = "noinvite", RememberJoins = true },
    KeySystem = true,
@@ -61,7 +48,7 @@ local Window = Rayfield:CreateWindow({
       Title = "Painel Protegido 🐰",
       Subtitle = "Insira a sua chave de acesso",
       Note = "Insira a chave autorizada para continuar.",
-      FileName = "RabbitKeyDono01Exclusive",
+      FileName = "RabbitKeyDono01Duelos",
       SaveKey = true,
       Key = {"Dono01"}
    }
@@ -70,7 +57,7 @@ local Window = Rayfield:CreateWindow({
 -- ==================== ABAS DO PAINEL ====================
 local MovementTab = Window:CreateTab("⚡ Mouvement", 4483362458)
 local ESPTab = Window:CreateTab("👁️ ESP", 4483362458)
-local CombatTab = Window:CreateTab("🎯 Combate", 4483362458)
+local CombatTab = Window:CreateTab("🎯 Combate & Hitbox", 4483362458)
 local ConfigTab = Window:CreateTab("⚙️ Configurações", 4483362458)
 
 -- ==================== ABA 1: MOUVEMENT ====================
@@ -83,7 +70,7 @@ MovementTab:CreateToggle({
 
 MovementTab:CreateSlider({
    Name = "Velocidade (WalkSpeed)",
-   Range = {16, 500},
+   Range = {16, 300},
    Increment = 5,
    Suffix = " studs",
    CurrentValue = 16,
@@ -96,7 +83,7 @@ MovementTab:CreateSlider({
    end,
 })
 
--- ==================== ABA 2: ESP UNIVERSAL ====================
+-- ==================== ABA 2: ESP ====================
 ESPTab:CreateToggle({
    Name = "ESP Box (Caixas)",
    CurrentValue = true,
@@ -109,33 +96,12 @@ ESPTab:CreateToggle({
    end,
 })
 
-ESPTab:CreateToggle({
-   Name = "ESP Esqueleto (Skeleton)",
-   CurrentValue = true,
-   Flag = "ToggleESPSkeleton",
-   Callback = function(Value) 
-      ESPSkeletonEnabled = Value
-      if not Value then
-         for _, skel in pairs(ESPSkeletons) do
-            for _, line in pairs(skel) do if line then line.Visible = false end end
-         end
-      end
-   end,
-})
-
--- ==================== ABA 3: COMBATE UNIVERSAL ====================
+-- ==================== ABA 3: COMBATE & HITBOX ====================
 CombatTab:CreateToggle({
    Name = "Aimbot",
    CurrentValue = false,
    Flag = "ToggleAimbot",
    Callback = function(Value) AimbotEnabled = Value end,
-})
-
-CombatTab:CreateToggle({
-   Name = "Tiro Automático (Auto-Shoot)",
-   CurrentValue = false,
-   Flag = "ToggleAutoShoot",
-   Callback = function(Value) AutoShootEnabled = Value end,
 })
 
 CombatTab:CreateToggle({
@@ -168,15 +134,7 @@ CombatTab:CreateSlider({
    Callback = function(Value) Smoothness = Value end,
 })
 
-CombatTab:CreateDropdown({
-   Name = "Partie visée",
-   Options = {"Head", "UpperTorso", "Torso"},
-   CurrentOption = "Head",
-   Flag = "DropdownPart",
-   Callback = function(Option) TargetPartName = Option[1] end,
-})
-
-CombatTab:CreateSection("🔧 Hitbox Universal")
+CombatTab:CreateSection("🔧 Hitbox Extender")
 
 CombatTab:CreateToggle({
    Name = "Ativar Hitbox Expandida",
@@ -196,10 +154,10 @@ CombatTab:CreateSlider({
 })
 
 -- ==================== ABA 4: CONFIGURAÇÕES ====================
-ConfigTab:CreateLabel("🐰 Rabbit Menu - Universal FPS")
+ConfigTab:CreateLabel("🐰 Rabbit Menu - Salvamento de Configurações")
 ConfigTab:CreateLabel("Criador: Chiquinook9")
 ConfigTab:CreateButton({
-   Name = "Guardar Configurações Manualmente",
+   Name = "Guardar Configurações Agora",
    Callback = function()
       Rayfield:SaveConfiguration()
       Rayfield:Notify({ Title = "Sucesso", Content = "As tuas preferências foram guardadas!", Duration = 3 })
@@ -214,7 +172,7 @@ ConfigTab:CreateButton({
    end,
 })
 
--- Função universal para encontrar o jogador inimigo mais próximo no FOV (funciona em qualquer FPS)
+-- Função para encontrar o alvo mais próximo no FOV
 local function GetClosestPlayerInFOV()
    local closestTarget = nil
    local shortestDistance = FovSize
@@ -222,20 +180,17 @@ local function GetClosestPlayerInFOV()
 
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-         -- Validação universal: considera inimigo se for equipa diferente ou em jogos sem equipas (FFA)
-         local isEnemy = (player.Team ~= LocalPlayer.Team) or (not LocalPlayer.Team) or (#Players:GetTeams() == 0)
-         if isEnemy then
-            local character = player.Character
-            local targetPart = character:FindFirstChild(TargetPartName) or character:FindFirstChild("UpperTorso") or character:FindFirstChild("Head")
-            
-            if targetPart then
-               local screenPoint, onScreen = CurrentCamera:WorldToViewportPoint(targetPart.Position)
-               if onScreen then
-                  local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter).Magnitude
-                  if distance < shortestDistance then
-                     shortestDistance = distance
-                     closestTarget = targetPart
-                  end
+         -- Em jogos de duelo/arena, qualquer outro jogador é um alvo válido
+         local character = player.Character
+         local targetPart = character:FindFirstChild("Head") or character:FindFirstChild("UpperTorso")
+         
+         if targetPart then
+            local screenPoint, onScreen = CurrentCamera:WorldToViewportPoint(targetPart.Position)
+            if onScreen then
+               local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - screenCenter).Magnitude
+               if distance < shortestDistance then
+                  shortestDistance = distance
+                  closestTarget = targetPart
                end
             end
          end
@@ -244,7 +199,7 @@ local function GetClosestPlayerInFOV()
    return closestTarget
 end
 
--- Noclip otimizado universal
+-- Noclip
 Stepped:Connect(function()
    if LocalPlayer.Character and NoclipEnabled then
       local rootPart = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -259,7 +214,7 @@ Stepped:Connect(function()
    end
 end)
 
--- Loop Principal Universal (Hitbox, Aimbot, Auto-Shoot e ESP)
+-- Loop Principal
 RunService.RenderStepped:Connect(function()
    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
       if LocalPlayer.Character.Humanoid.WalkSpeed ~= WalkSpeedValue then
@@ -267,14 +222,12 @@ RunService.RenderStepped:Connect(function()
       end
    end
 
-   -- 1. Hitbox Universal Adaptativa para qualquer FPS
+   -- 1. Hitbox Extender Funcional
    for _, player in ipairs(Players:GetPlayers()) do
       if player ~= LocalPlayer and player.Character then
-         local isEnemy = (player.Team ~= LocalPlayer.Team) or (not LocalPlayer.Team) or (#Players:GetTeams() == 0)
          local targetHitbox = player.Character:FindFirstChild("UpperTorso") or player.Character:FindFirstChild("HumanoidRootPart")
-         
          if targetHitbox then
-            if HitboxEnabled and isEnemy then
+            if HitboxEnabled then
                targetHitbox.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
                targetHitbox.Transparency = 0.7
                targetHitbox.CanCollide = false
@@ -290,35 +243,30 @@ RunService.RenderStepped:Connect(function()
    local screenCenter = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y / 2)
    FOVDrawing.Position = screenCenter
    FOVDrawing.Radius = FovSize
-   FOVDrawing.Visible = FovVisible and (AimbotEnabled or AutoShootEnabled)
+   FOVDrawing.Visible = FovVisible and AimbotEnabled
 
-   -- 3. Aimbot & Auto-Shoot Universal
-   local target = GetClosestPlayerInFOV()
-   
-   if AimbotEnabled and target then
-      local camPos = CurrentCamera.CFrame.Position
-      local targetPos = target.Position
-      local lookAtCFrame = CFrame.new(camPos, targetPos)
-      
-      if Smoothness <= 1 then
-         CurrentCamera.CFrame = lookAtCFrame
-      else
-         CurrentCamera.CFrame = CurrentCamera.CFrame:Lerp(lookAtCFrame, 1 / Smoothness)
+   -- 3. Aimbot
+   if AimbotEnabled then
+      local target = GetClosestPlayerInFOV()
+      if target then
+         local camPos = CurrentCamera.CFrame.Position
+         local targetPos = target.Position
+         local lookAtCFrame = CFrame.new(camPos, targetPos)
+         
+         if Smoothness <= 1 then
+             CurrentCamera.CFrame = lookAtCFrame
+         else
+             CurrentCamera.CFrame = CurrentCamera.CFrame:Lerp(lookAtCFrame, 1 / Smoothness)
+         end
       end
    end
 
-   if AutoShootEnabled and target then
-      mouse1click()
-      task.wait(0.05)
-   end
-
-   -- 4. ESP Box Universal
+   -- 4. ESP Box
    if ESPBoxEnabled then
       for _, player in ipairs(Players:GetPlayers()) do
          if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
             local char = player.Character
             local rootPart = char.HumanoidRootPart
-            local dist = (CurrentCamera.CFrame.Position - rootPart.Position).Magnitude
             
             if not ESPBoxes[player] then
                local box = Drawing.new("Square")
@@ -344,55 +292,11 @@ RunService.RenderStepped:Connect(function()
          end
       end
    end
-
-   -- ESP Esqueleto Universal
-   if ESPSkeletonEnabled then
-      local function createLine()
-         local line = Drawing.new("Line")
-         line.Visible = false
-         line.Color = Color3.fromRGB(100, 255, 100)
-         line.Thickness = 1.5
-         return line
-      end
-
-      for _, player in ipairs(Players:GetPlayers()) do
-         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
-            local char = player.Character
-            
-            if not ESPSkeletons[player] then
-               ESPSkeletons[player] = { HeadToTorso = createLine() }
-            end
-            
-            local skel = ESPSkeletons[player]
-            local head = char:FindFirstChild("Head")
-            local torso = char:FindFirstChild("UpperTorso") or char:FindFirstChild("Torso")
-            
-            if head and torso then
-               local headPos, hOn = CurrentCamera:WorldToViewportPoint(head.Position)
-               local torsoPos, tOn = CurrentCamera:WorldToViewportPoint(torso.Position)
-               
-               if hOn and tOn then
-                  skel.HeadToTorso.From = Vector2.new(headPos.X, headPos.Y)
-                  skel.HeadToTorso.To = Vector2.new(torsoPos.X, torsoPos.Y)
-                  skel.HeadToTorso.Visible = true
-               else
-                  skel.HeadToTorso.Visible = false
-               end
-            else
-               if skel.HeadToTorso then skel.HeadToTorso.Visible = false end
-            end
-         else
-            if ESPSkeletons[player] then
-               for _, line in pairs(ESPSkeletons[player]) do line.Visible = false end
-            end
-         end
-      end
-   end
 end)
 
 Rayfield:Notify({
-   Title = "Rabbit Menu Universal Ativo! 🐰🔥",
-   Content = "Pronto para qualquer jogo FPS.",
+   Title = "Rabbit Menu Ativo! 🐰🔥",
+   Content = "Hitbox e painel configurados com sucesso.",
    Duration = 5,
    Image = 4483362458,
 })
